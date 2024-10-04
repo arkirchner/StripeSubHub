@@ -58,9 +58,9 @@ last_stripe_event_created_at).
 
         % git clone git@github.com:arkirchner/stripe_sub_hub.git
 
-2.  Cope the .env.sample to .env and add you Stripe test secrets.
+2.  Cope the env.sample to .env and add your Stripe endpoint secrets.
 
-        % cp .env.sample .env
+        % cp env.sample .env
         % vi .env
 
 3.  Start or setup Rails.

@@ -11,4 +11,7 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+  scope :webhooks do
+    resources :stripe_events, only: :create
+  end
 end
