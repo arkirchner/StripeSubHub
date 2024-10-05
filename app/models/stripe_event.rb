@@ -1,4 +1,8 @@
 class StripeEvent < ApplicationRecord
+  enum :status, [ :pending, :processed, :processing_failed, :unhandled ]
+
+  after_create_commit { StripeEventJob.perform_later(self) }
+
   def self.import(event)
     create_or_find_by(stripe_id: event.id) do |stripe_event|
       stripe_event.event_type = event.type

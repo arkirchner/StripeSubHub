@@ -10,11 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_10_02_141041) do
+ActiveRecord::Schema[8.0].define(version: 2024_10_05_024606) do
   create_table "stripe_events", primary_key: "stripe_id", id: :string, force: :cascade do |t|
     t.string "event_type", null: false
     t.json "data", null: false
     t.datetime "stripe_created_at", null: false
     t.datetime "created_at", null: false
+    t.integer "status", default: 0, null: false
+    t.string "processing_error", default: "", null: false
   end
 end

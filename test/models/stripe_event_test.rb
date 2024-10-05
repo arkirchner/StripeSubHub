@@ -1,6 +1,8 @@
 require "test_helper"
 
 class StripeEventTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   test ".import, creates a new StripeEvent" do
     event = assert_difference "StripeEvent.count" do
               StripeEvent.import(new_event)
@@ -16,6 +18,14 @@ class StripeEventTest < ActiveSupport::TestCase
     StripeEvent.import(new_event)
 
     assert_no_difference "StripeEvent.count" do
+      StripeEvent.import(new_event)
+    end
+  end
+
+  test ".import, enqueuss the StripeEvent for later processing" do
+    args_matcher = ->(args) { assert_instance_of StripeEvent, args[0] }
+
+    assert_enqueued_with(job: StripeEventJob, args: args_matcher) do
       StripeEvent.import(new_event)
     end
   end
