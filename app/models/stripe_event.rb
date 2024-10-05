@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class StripeEvent < ApplicationRecord
   enum :status, [ :pending, :processed, :processing_failed, :unhandled ]
 
