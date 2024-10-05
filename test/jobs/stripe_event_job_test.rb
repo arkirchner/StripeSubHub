@@ -4,7 +4,7 @@ require "test_helper"
 
 class StripeEventJobTest < ActiveJob::TestCase
   test "#perform, processes a handeled StripeEvent event" do
-    event = create_event("customer.subscription.created")
+    event = create_event
 
     mock_call = Minitest::Mock.new
     mock_call.expect(:call, nil, [ event ])
@@ -19,7 +19,8 @@ class StripeEventJobTest < ActiveJob::TestCase
   end
 
   test "#perform, ignores an unhandled StripeEvent event" do
-    event = create_event("unhandled.created")
+    event = create_event
+    event.update!(event_type: "unhandled.created")
 
     StripeEventJob.perform_now(event)
 
@@ -27,7 +28,7 @@ class StripeEventJobTest < ActiveJob::TestCase
   end
 
   test "#perform, records porcessing errors and raises an exception" do
-    event = create_event("customer.subscription.created")
+    event = create_event
 
     StripeEvents::SubscriptionService.stub(:call, ->(_event) { raise("processing error abc") }) do
       assert_raises do
@@ -41,7 +42,7 @@ class StripeEventJobTest < ActiveJob::TestCase
   end
 
   test "#perform, removes the error message after a successful retry" do
-    event = create_event("customer.subscription.created")
+    event = create_event
     event.update!(status: :processing_failed, processing_error: "processing error abc")
 
     StripeEventJob.perform_now(event)
@@ -50,12 +51,9 @@ class StripeEventJobTest < ActiveJob::TestCase
     assert_equal "", event.processing_error
   end
 
-  def create_event(event_type)
-    StripeEvent.create!(
-      id: "evt_test",
-      event_type: event_type,
-      data: {},
-      stripe_created_at: Time.current
-    )
+  def create_event
+    file_path = "test/fixtures/stripe_events/customer.subscription.created.json"
+
+    StripeEvent.import(Stripe::Event.construct_from(JSON.parse(File.read(file_path))))
   end
 end

@@ -12,4 +12,6 @@ class StripeEvent < ApplicationRecord
       stripe_event.stripe_created_at = Time.zone.at(event.created)
     end
   end
+
+  def object = Stripe::StripeObject.construct_from(data).object
 end
