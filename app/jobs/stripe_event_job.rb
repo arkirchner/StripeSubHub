@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class StripeEventJob < ApplicationJob
   SERVICES = {
     "customer.subscription.created" => StripeEvents::SubscriptionService,
