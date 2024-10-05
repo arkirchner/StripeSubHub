@@ -1,6 +1,6 @@
 {
   "api_version": "2024-06-20",
-  "created": 1728141883,
+  "created": 1728141882,
   "data": {
     "object": {
       "account_country": "JP",
@@ -114,9 +114,7 @@
         "url": "/v1/invoices/in_1Q6ZqYHWdrSF9AyB7mexuPIH/lines"
       },
       "livemode": false,
-      "metadata": {
-        "foo": "bar"
-      },
+      "metadata": {},
       "next_payment_attempt": null,
       "number": null,
       "object": "invoice",
@@ -168,20 +166,15 @@
       "total_tax_amounts": [],
       "transfer_data": null,
       "webhooks_delivered_at": null
-    },
-    "previous_attributes": {
-      "metadata": {
-        "foo": null
-      }
     }
   },
-  "id": "evt_1Q6ZqZHWdrSF9AyBkZb1xJYI",
+  "id": "evt_1Q6ZqYHWdrSF9AyBLeJb9vEC",
   "livemode": false,
   "object": "event",
   "pending_webhooks": 2,
   "request": {
-    "id": "req_RTijdMQ2TnuAbI",
-    "idempotency_key": "98e30d99-d470-4ac1-a15d-d7b7be9127c1"
+    "id": "req_6wfjqAgYZSf0iQ",
+    "idempotency_key": "3bd617fd-e74c-4d1f-ac40-2c59825cfb78"
   },
-  "type": "invoice.updated"
+  "type": "invoice.created"
 }
