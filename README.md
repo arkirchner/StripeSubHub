@@ -1,18 +1,11 @@
 # StripeSubHub
 
-Simple Stripe subscription management with three payment states:
-"unpaid," "paid," and "canceled."
+Simple Stripe subscription management with three payment states: "unpaid," "paid," and "canceled."
+- **Unpaid** is the default state of a subscription when created via Stripe.
+- A subscription is considered **paid** when the first invoice is successfully paid.
+- A paid subscription can be manually **canceled** in the app. A cancelation with a webhook event is unrestricted.
 
-Unpaid is the default state of a subscription.
-
-A subscription is considered paid when the latest invoice is paid. The paid 
-status is different from the subscription's active state. A subscription is 
-active during a long-running payment processing. 
-
-The cancelation is recorded with the subscription state canceled. A canceled 
-subscription automatically closes all invoices.
-
-A paid subscription can be canceled in the app.
+These states do not directly reflect the subscription's activity on Stripe during the processing phases. The focus is keeping the local record in sync and reflecting the state of unpaid, paid, and canceled.
 
 ## Data structure
 
@@ -37,10 +30,7 @@ erDiagram
     }
 ```
 
-Stripe events drive the updates of the subscriptions and invoices. Event 
-processing is restricted by the date the event was created. Only new events 
-can update the resources (event created_at is compared with 
-last_stripe_event_created_at).
+Stripe events drive subscription updates. Optimistic locking prevents updates and stale subscriptions. 
 
 ## Setup
 
@@ -48,7 +38,7 @@ last_stripe_event_created_at).
 
         % git clone git@github.com:arkirchner/stripe_sub_hub.git
 
-2.  Cope the env.sample to .env and add your Stripe endpoint secrets.
+2.  Cope the env.sample to .env and add your Stripe secrets.
 
         % cp env.sample .env
         % vi .env
@@ -74,10 +64,23 @@ events to the local application.
 
 2.  Forward subscription and invoice events to the local application. 
 
-        % stripe listen --events customer.subscription.created,customer.subscription.updated,invoice.updated \
+        % stripe listen --events customer.subscription.created,customer.subscription.deleted,invoice.paid \
                         --forward-to localhost:3000/webhooks/stripe_events
 
-3.  Create subscriptions on the Stripe UI .....
+3.  You can create subscriptions with the [Stripe UI](https://dashboard.stripe.com/test/billing) or by manually triggering events.
+
+
+##### Create an unpaid subscription.
+
+        % stripe trigger customer.subscription.paused
+
+##### Create a paid subscription.
+
+        % stripe trigger customer.subscription.created
+
+##### Create a canceled subscription.
+
+        % stripe trigger customer.subscription.deleted
 
 4.  Canceled subscriptions in the Rails console.
 
