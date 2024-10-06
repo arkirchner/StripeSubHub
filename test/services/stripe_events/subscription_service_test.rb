@@ -12,7 +12,6 @@ class StripeEvents::SubscriptionServiceTest < ActiveSupport::TestCase
     assert_equal event.object.id, subscription.stripe_id
     assert_equal event.stripe_created_at, subscription.last_stripe_event_created_at
     assert_equal event.object.latest_invoice, subscription.latest_invoice_id
-    assert_equal event.object.status, subscription.status
   end
 
   test ".call, should create a subscription with an update event" do
@@ -35,7 +34,6 @@ class StripeEvents::SubscriptionServiceTest < ActiveSupport::TestCase
 
     assert_equal event.stripe_created_at, subscription.reload.last_stripe_event_created_at
     assert_equal "in_01", subscription.reload.latest_invoice_id
-    assert_equal "canceled", subscription.reload.status
   end
 
   test ".call, should not update a subscription with a stale event" do

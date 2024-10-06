@@ -29,24 +29,13 @@ erDiagram
 
     stripe_subscriptions {
         stripe_id string PK
-        payment_state enum "unpaid|paid|canceled, not null, default 'unpaid'"
+        subscription_state enum "unpaid|paid|canceled, not null, default 'unpaid'"
         latest_invoice_id string
         last_stripe_event_created_at timestamp "not null"
         lock_version integer "not null, default 0"
         created_at timestamp "not null"
         updated_at timestamp "not null"
     }
-
-    stripe_invoices {
-        stripe_id string PK
-        status enum "draft|open|paid|void|uncollectible, not null"
-        last_stripe_event_created_at timestamp "not null"
-        lock_version integer "not null, default 0"
-        created_at timestamp "not null"
-        updated_at timestamp "not null"
-    }
-
-    stripe_subscriptions ||--o| stripe_invoices : has_one
 ```
 
 Stripe events drive the updates of the subscriptions and invoices. Event 
