@@ -12,7 +12,7 @@ module StripeEvents
     def call
       return subscription if event_stale?
 
-      subscription.assign_attributes(last_stripe_event_created_at:, latest_invoice_id:)
+      subscription.assign_attributes(last_stripe_event_created_at:, latest_invoice_id:, status:)
       subscription.save!
 
       subscription
@@ -25,6 +25,7 @@ module StripeEvents
     def stripe_id = event.object.id
     def last_stripe_event_created_at = event.stripe_created_at
     def latest_invoice_id = event.object.latest_invoice
+    def status = event.object.status
 
     def event_stale?
       subscription.persisted? &&

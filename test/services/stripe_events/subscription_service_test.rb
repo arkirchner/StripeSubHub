@@ -12,10 +12,11 @@ class StripeEvents::SubscriptionServiceTest < ActiveSupport::TestCase
     assert_equal event.object.id, subscription.stripe_id
     assert_equal event.stripe_created_at, subscription.last_stripe_event_created_at
     assert_equal event.object.latest_invoice, subscription.latest_invoice_id
+    assert_equal event.object.status, subscription.status
   end
 
   test ".call, should create a subscription with an update event" do
-    event = create_event("customer.subscription.updated")
+    event = create_event("customer.subscription.deleted")
     subscription = assert_difference "StripeSubscription.count" do
       StripeEvents::SubscriptionService.call(event)
     end
@@ -27,13 +28,14 @@ class StripeEvents::SubscriptionServiceTest < ActiveSupport::TestCase
     event = create_event("customer.subscription.created")
     subscription = StripeEvents::SubscriptionService.call(event)
 
-    event = create_event("customer.subscription.updated")
+    event = create_event("customer.subscription.deleted")
     event.data["object"]["latest_invoice"] = "in_01"
 
     StripeEvents::SubscriptionService.call(event)
 
     assert_equal event.stripe_created_at, subscription.reload.last_stripe_event_created_at
     assert_equal "in_01", subscription.reload.latest_invoice_id
+    assert_equal "canceled", subscription.reload.status
   end
 
   test ".call, should not update a subscription with a stale event" do
@@ -49,15 +51,15 @@ class StripeEvents::SubscriptionServiceTest < ActiveSupport::TestCase
   end
 
   test ".call, should not override stale data in a race condition" do
-    update_event = create_event("customer.subscription.updated")
+    deleted_event = create_event("customer.subscription.deleted")
 
     subscription = StripeEvents::SubscriptionService.call(create_event("customer.subscription.created"))
 
-    StripeEvents::SubscriptionService.call(update_event)
+    StripeEvents::SubscriptionService.call(deleted_event)
 
     StripeSubscription.stub(:find_or_initialize_by, ->(_args) { subscription }) do
       assert_raises(ActiveRecord::StaleObjectError) do
-        StripeEvents::SubscriptionService.call(update_event)
+        StripeEvents::SubscriptionService.call(deleted_event)
       end
     end
   end

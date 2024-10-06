@@ -4,7 +4,7 @@ require "test_helper"
 
 class StripeEvents::InvoiceServiceTest < ActiveSupport::TestCase
   test ".call, should create a invoice with a create event" do
-    event = create_event("invoice.created")
+    event = create_event
     invoice = assert_difference "StripeInvoice.count" do
       StripeEvents::InvoiceService.call(event)
     end
@@ -15,7 +15,7 @@ class StripeEvents::InvoiceServiceTest < ActiveSupport::TestCase
   end
 
   test ".call, should create a invoice with an update event" do
-    event = create_event("invoice.updated")
+    event = create_event
     invoice = assert_difference "StripeInvoice.count" do
       StripeEvents::InvoiceService.call(event)
     end
@@ -24,10 +24,10 @@ class StripeEvents::InvoiceServiceTest < ActiveSupport::TestCase
   end
 
   test ".call, should update the invoice" do
-    event = create_event("invoice.created")
-    invoice = StripeEvents::InvoiceService.call(event)
+    invoice = StripeEvents::InvoiceService.call(create_event)
 
-    event = create_event("invoice.updated")
+    event = create_event
+    event.stripe_created_at = event.stripe_created_at + 1.second
     event.data["object"]["status"] = "void"
 
     StripeEvents::InvoiceService.call(event)
@@ -37,10 +37,10 @@ class StripeEvents::InvoiceServiceTest < ActiveSupport::TestCase
   end
 
   test ".call, should not update a invoice with a stale event" do
-    event = create_event("invoice.created")
+    event = create_event
     invoice = StripeEvents::InvoiceService.call(event)
 
-    event = create_event("invoice.created")
+    event = create_event
     event.data["object"]["status"] = "void"
 
     StripeEvents::InvoiceService.call(event)
@@ -49,9 +49,10 @@ class StripeEvents::InvoiceServiceTest < ActiveSupport::TestCase
   end
 
   test ".call, should not override stale data in a race condition" do
-    update_event = create_event("invoice.updated")
+    update_event = create_event
+    update_event.stripe_created_at = update_event.stripe_created_at + 1.second
 
-    invoice = StripeEvents::InvoiceService.call(create_event("invoice.created"))
+    invoice = StripeEvents::InvoiceService.call(create_event)
 
     StripeEvents::InvoiceService.call(update_event)
 
@@ -62,8 +63,8 @@ class StripeEvents::InvoiceServiceTest < ActiveSupport::TestCase
     end
   end
 
-  def create_event(event_type)
-    file_path = "test/fixtures/stripe_events/#{event_type}.json"
+  def create_event
+    file_path = "test/fixtures/stripe_events/invoice.paid.json"
 
     StripeEvent.import(Stripe::Event.construct_from(JSON.parse(File.read(file_path))))
   end
