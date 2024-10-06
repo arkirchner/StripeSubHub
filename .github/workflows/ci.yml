@@ -78,6 +78,8 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
+          STRIPE_SECRET_KEY: sk_test_111111111111111111111111
+          STRIPE_ENDPOINT_SECRET: whsec_111111111111111111111
           # REDIS_URL: redis://localhost:6379/0
         run: bin/rails db:test:prepare test test:system
 

@@ -82,5 +82,8 @@ events to the local application.
 
         % stripe trigger customer.subscription.deleted
 
-4.  Canceled subscriptions in the Rails console.
+4.  Subscriptions can be canceled in the Rails console.
+
+        % bin/rails c
+        % StripeSubscription.paid.take.cancel
 
