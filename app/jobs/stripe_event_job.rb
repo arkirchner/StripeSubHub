@@ -2,8 +2,9 @@
 
 class StripeEventJob < ApplicationJob
   SERVICES = {
-    "customer.subscription.created" => StripeEvents::SubscriptionService,
-    "customer.subscription.updated" => StripeEvents::SubscriptionService
+    "customer.subscription.created" => StripeEvents::CreateSubscriptionService,
+    "customer.subscription.deleted" => StripeEvents::DeleteSubscriptionService,
+    "invoice.paid" => StripeEvents::PaidInvoiceService
   }.freeze
 
   queue_as :default

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_10_06_102145) do
+ActiveRecord::Schema[8.0].define(version: 2024_10_06_122026) do
   create_table "stripe_events", primary_key: "stripe_id", id: :string, force: :cascade do |t|
     t.string "event_type", null: false
     t.json "data", null: false
@@ -21,12 +21,11 @@ ActiveRecord::Schema[8.0].define(version: 2024_10_06_102145) do
   end
 
   create_table "stripe_subscriptions", primary_key: "stripe_id", id: :string, force: :cascade do |t|
-    t.string "latest_invoice_id", default: "", null: false
-    t.datetime "last_stripe_event_created_at", null: false
+    t.string "first_invoice_id", default: "", null: false
     t.integer "lock_version", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "subscription_state", default: 0, null: false
-    t.index ["latest_invoice_id"], name: "index_stripe_subscriptions_on_latest_invoice_id"
+    t.index ["first_invoice_id"], name: "index_stripe_subscriptions_on_first_invoice_id"
   end
 end

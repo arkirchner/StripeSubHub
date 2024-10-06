@@ -30,8 +30,7 @@ erDiagram
     stripe_subscriptions {
         stripe_id string PK
         subscription_state enum "unpaid|paid|canceled, not null, default 'unpaid'"
-        latest_invoice_id string
-        last_stripe_event_created_at timestamp "not null"
+        first_invoice_id string
         lock_version integer "not null, default 0"
         created_at timestamp "not null"
         updated_at timestamp "not null"

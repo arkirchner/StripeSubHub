@@ -6,8 +6,7 @@ class StripeEvents::PaidInvoiceServiceTest < ActiveSupport::TestCase
   test ".call, should update the subscription state to paid" do
     subscription = StripeSubscription.create!(
       id: "sub_123",
-      latest_invoice_id: invoice_paid_event.object.id,
-      last_stripe_event_created_at: Time.current,
+      first_invoice_id: invoice_paid_event.object.id,
     )
 
     assert_changes -> { subscription.reload.subscription_state }, from: "unpaid", to: "paid" do
@@ -19,8 +18,7 @@ class StripeEvents::PaidInvoiceServiceTest < ActiveSupport::TestCase
     subscription = StripeSubscription.create!(
       id: "sub_123",
       subscription_state: "canceled",
-      latest_invoice_id: invoice_paid_event.object.id,
-      last_stripe_event_created_at: Time.current,
+      first_invoice_id: invoice_paid_event.object.id,
     )
 
     assert_no_changes -> { subscription.reload.subscription_state } do
@@ -31,8 +29,7 @@ class StripeEvents::PaidInvoiceServiceTest < ActiveSupport::TestCase
   test ".call, should not override stale data in a race condition" do
     subscription = StripeSubscription.create!(
       id: "sub_123",
-      latest_invoice_id: invoice_paid_event.object.id,
-      last_stripe_event_created_at: Time.current,
+      first_invoice_id: invoice_paid_event.object.id,
     )
 
     StripeEvents::PaidInvoiceService.call(invoice_paid_event)

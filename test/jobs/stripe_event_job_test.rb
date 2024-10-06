@@ -3,13 +3,13 @@
 require "test_helper"
 
 class StripeEventJobTest < ActiveJob::TestCase
-  test "#perform, processes a handeled StripeEvent event" do
+  test "#perform, processes a handeled StripeEvent" do
     event = create_event
 
     mock_call = Minitest::Mock.new
     mock_call.expect(:call, nil, [ event ])
 
-    StripeEvents::SubscriptionService.stub(:call, mock_call) do
+    StripeEvents::CreateSubscriptionService.stub(:call, mock_call) do
       StripeEventJob.perform_now(event)
     end
 
@@ -30,7 +30,7 @@ class StripeEventJobTest < ActiveJob::TestCase
   test "#perform, records porcessing errors and raises an exception" do
     event = create_event
 
-    StripeEvents::SubscriptionService.stub(:call, ->(_event) { raise("processing error abc") }) do
+    StripeEvents::CreateSubscriptionService.stub(:call, ->(_event) { raise("processing error abc") }) do
       assert_raises do
         StripeEventJob.perform_now(event)
       end

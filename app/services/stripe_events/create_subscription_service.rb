@@ -2,8 +2,8 @@
 
 
 module StripeEvents
-  class PaidInvoiceService
-    EVENT_TYPE = "invoice.paid"
+  class CreateSubscriptionService
+    EVENT_TYPE = "customer.subscription.created"
 
     def self.call(event) = new(event).call
 
@@ -14,23 +14,14 @@ module StripeEvents
     end
 
     def call
-      return if event_stale?
-
-      subscription.paid!
+      StripeSubscription.create!(stripe_id:, first_invoice_id:)
     end
 
     private
 
     attr_reader :event
 
-    def invoice_id = event.object.id
-
-    def event_stale?
-      subscription.canceled?
-    end
-
-    def subscription
-      @subscription ||= StripeSubscription.find_by!(first_invoice_id: invoice_id)
-    end
+    def stripe_id = event.object.id
+    def first_invoice_id = event.object.latest_invoice
   end
 end
