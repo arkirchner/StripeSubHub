@@ -7,6 +7,8 @@ class StripeEventJob < ApplicationJob
     "invoice.paid" => StripeEvents::PaidInvoiceService
   }.freeze
 
+  retry_on StandardError, attempts: 10
+
   queue_as :default
 
   def perform(stripe_event)

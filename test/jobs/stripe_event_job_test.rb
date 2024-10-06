@@ -31,9 +31,7 @@ class StripeEventJobTest < ActiveJob::TestCase
     event = create_event
 
     StripeEvents::CreateSubscriptionService.stub(:call, ->(_event) { raise("processing error abc") }) do
-      assert_raises do
-        StripeEventJob.perform_now(event)
-      end
+      StripeEventJob.perform_now(event)
     end
 
     assert event.processing_failed?
